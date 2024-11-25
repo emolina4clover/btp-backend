@@ -1,0 +1,13 @@
+services:
+  btp-backend:
+    build: .
+    ports:
+      - '5001:5001'
+    container_name: btp-backend
+    restart: always
+    platform: linux/amd64
+    image: btp/btp-backend:${IMAGE}
+    environment:
+        PORT: "5001"
+        NODE_ENV: "production"
+        PRESTASHOP_API_TOKEN: ${PRESTASHOP_API_TOKEN}
