@@ -3,7 +3,6 @@ import { ExternalApiService } from '../../data-sources/external-api/external-api
 import { TransformationsService } from '../../data-transformations/transformations.service';
 import { PrestaShopBusinessRulesService } from '../../business-rules/prestashop-business-rules.service';
 
-
 @Controller('api')
 export class ApiController {
   constructor(
@@ -22,7 +21,10 @@ export class ApiController {
   async getProducts() {
     let products = await this.externalApiService.getProducts();
     products = await this.transformationsService.transformData(products);
-    products = this.prestaShopBusinessRulesService.applyPrestaShopBusinessRules(products);
+    products =
+      this.prestaShopBusinessRulesService.applyPrestaShopBusinessRules(
+        products,
+      );
     return products;
   }
 }

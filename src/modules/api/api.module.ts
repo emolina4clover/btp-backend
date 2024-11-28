@@ -6,8 +6,8 @@ import { PrestaShopBusinessRulesModule } from '../business-rules/prestashop-busi
 
 @Module({
   imports: [
-    ExternalApiModule, 
-    TransformationsModule, 
+    ExternalApiModule,
+    TransformationsModule,
     PrestaShopBusinessRulesModule,
   ],
   controllers: [ApiController],

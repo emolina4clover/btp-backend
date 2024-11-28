@@ -47,7 +47,10 @@ export class ExternalApiService {
       this.logger.debug('Respuesta de la API de productos obtenida.');
 
       // Agregar log para inspeccionar la estructura
-      this.logger.debug('Estructura de jsonData.prestashop.products:', JSON.stringify(jsonData.prestashop.products, null, 2));
+      this.logger.debug(
+        'Estructura de jsonData.prestashop.products:',
+        JSON.stringify(jsonData.prestashop.products, null, 2),
+      );
 
       let productsArray = [];
 
@@ -74,7 +77,9 @@ export class ExternalApiService {
 
       // Paso 2: Obtener detalles de cada producto
       this.logger.debug('Solicitando detalles de cada producto...');
-      const productDetailsPromises = productIds.map((id) => this.getProductDetails(id));
+      const productDetailsPromises = productIds.map((id) =>
+        this.getProductDetails(id),
+      );
 
       const productsDetails = await Promise.all(productDetailsPromises);
 
@@ -101,7 +106,10 @@ export class ExternalApiService {
       this.logger.debug(`Detalles del producto ${id} obtenidos.`);
 
       // Loguear los detalles del producto
-      this.logger.debug(`Estructura del producto ${id}:`, JSON.stringify(jsonData, null, 2));
+      this.logger.debug(
+        `Estructura del producto ${id}:`,
+        JSON.stringify(jsonData, null, 2),
+      );
 
       return jsonData;
     } catch (error) {

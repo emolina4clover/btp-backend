@@ -15,8 +15,6 @@ import { ApiController } from './modules/api/controllers/api.controller';
     TransformationsModule,
     PrestaShopBusinessRulesModule,
   ],
-  controllers: [
-    ApiController,
-  ],
+  controllers: [ApiController],
 })
 export class AppModule {}
