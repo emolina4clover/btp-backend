@@ -13,14 +13,15 @@ export class ApiController {
 
   @Get('resources')
   async getResources() {
-    const resources = await this.externalApiService.getResources();
-    return resources;
+    return await this.externalApiService.getResources();
   }
 
   @Get('products')
   async getProducts() {
     let products = await this.externalApiService.getProducts();
     products = await this.transformationsService.transformData(products);
+
+    console.log(products);
     products =
       this.prestaShopBusinessRulesService.applyPrestaShopBusinessRules(
         products,

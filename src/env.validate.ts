@@ -14,6 +14,10 @@ class EnvironmentVariables {
   @IsNotEmpty()
   THROTTLE_LIMIT: number;
 
+  @IsNumber()
+  @IsNotEmpty()
+  HTTPCLIENT_ATTEMPTS: number;
+
   @IsString()
   @IsNotEmpty()
   JWT_SECRET: string;

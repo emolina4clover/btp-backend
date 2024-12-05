@@ -6,10 +6,10 @@ import { parseStringPromise } from 'xml2js';
 export class TransformationsService {
   private readonly logger = new Logger(TransformationsService.name);
 
-  async transformData(productsData: any[]): Promise<any[]> {
+  async transformData(productsData: any[]) {
     this.logger.debug('Iniciando transformación de datos...');
-    return Promise.all(
-      productsData.map(async (productData, index) => {
+    productsData
+      .map(async (productData, index) => {
         this.logger.debug(
           `Transformando producto ${index + 1}/${productsData.length}...`,
         );
@@ -39,19 +39,27 @@ export class TransformationsService {
 
         this.logger.debug(`Producto ${id} - Nombre: ${name}`);
 
-        const images = await this.extractImages(product);
+        const images = this.extractImages(product);
 
         let stockQuantity = 0;
         const stockAvailable =
           product.associations?.[0]?.stock_availables?.[0]
             ?.stock_available?.[0];
+
+        console.log(JSON.stringify(stockAvailable.$['xlink:href']));
+        console.log(
+          JSON.stringify(
+            product.associations?.[0]?.stock_availables?.[0]?.stock_available,
+          ),
+        );
         if (
           stockAvailable &&
           stockAvailable.$ &&
           stockAvailable.$['xlink:href']
         ) {
-          stockQuantity = await this.extractStockQuantity(
+          stockQuantity = await this.extractImagesWithDelay(
             stockAvailable.$['xlink:href'],
+            2000,
           );
         }
 
@@ -67,11 +75,11 @@ export class TransformationsService {
           images,
           stock_quantity: stockQuantity,
         };
-      }),
-    ).then((results) => results.filter((product) => product !== null));
+      })
+      .filter((product) => product !== null);
   }
 
-  private async extractImages(product): Promise<string[]> {
+  private extractImages(product): string[] {
     const imagesNode = product.associations?.[0]?.images?.[0]?.image || [];
     if (imagesNode.length === 0) {
       this.logger.debug('No se encontraron imágenes para el producto.');
@@ -101,5 +109,14 @@ export class TransformationsService {
       this.logger.error('Error al obtener stock disponible:', error);
       return 0;
     }
+  }
+
+  private async extractImagesWithDelay(
+    stockAvailableLink: any,
+    delay: number,
+  ): Promise<any> {
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    console.log(stockAvailableLink);
+    return this.extractStockQuantity(stockAvailableLink);
   }
 }

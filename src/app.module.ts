@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ExternalApiModule } from './modules/data-sources/external-api/external-api.module';
-import { TransformationsModule } from './modules/data-transformations/transformations.module';
-import { PrestaShopBusinessRulesModule } from './modules/business-rules/prestashop-business-rules.module';
-import { ApiController } from './modules/api/controllers/api.controller';
+import { ApiController } from './modules-nouse/api/controllers/api.controller';
 import { validate } from './env.validate';
 import { Throttler } from './throttler/throttler';
 import { JwtRegister } from './jwt/jwt';
@@ -13,6 +10,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthGuard } from './guards/auth.guard';
 import { UsersModule } from './api/users/users.module';
 import { AuthModule } from './api/auth/auth.module';
+import { ProductsModule } from './api/products/products.module';
 
 @Module({
   imports: [
@@ -33,11 +31,8 @@ import { AuthModule } from './api/auth/auth.module';
     }),
     AuthModule,
     UsersModule,
-    ExternalApiModule,
-    TransformationsModule,
-    PrestaShopBusinessRulesModule,
+    ProductsModule,
   ],
-  controllers: [ApiController],
   providers: [
     {
       provide: APP_GUARD,
