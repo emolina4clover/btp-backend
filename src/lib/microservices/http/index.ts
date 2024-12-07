@@ -11,7 +11,12 @@ export class ConfigurationMsClient {
    * @returns An object with two properties: endpoints and headers.
    */
   execute(): ConfigurationMsClientInterface {
-    const url = `https://${this.configService.get<string>('PRESTASHOP_API_TOKEN')}@poleras.cl/api`;
+    let url = `https://${this.configService.get<string>('PRESTASHOP_API_TOKEN')}@poleras.cl/api`;
+
+    if (this.configService.get<string>('PRESTASHOP_DUMMY')) {
+      url = this.configService.get<string>('PRESTASHOP_DUMMY');
+    }
+
     return {
       endpoints: {
         products: `${url}/products`,
