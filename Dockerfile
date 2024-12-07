@@ -1,4 +1,6 @@
-FROM node:20.18.0-alpine AS builder
+FROM node:20.18.0-alpine
+
+MAINTAINER Andres Olivares
 
 WORKDIR /src
 
@@ -15,6 +17,5 @@ ENV TZ="America/Santiago"
 RUN npm install
 RUN npm run build
 
-EXPOSE 5001
-
-CMD ["node", "dist/main.js"]
+EXPOSE 4040
+CMD ["npm", "start"]

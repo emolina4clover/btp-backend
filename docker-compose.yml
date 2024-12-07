@@ -1,13 +1,32 @@
+version: "3.8"
+
 services:
   btp-backend:
-    build: .
     ports:
-      - '5001:5001'
+      - "4040:4040"
     container_name: btp-backend
     restart: always
+    build:
+      context: ./
+      dockerfile: Dockerfile
     platform: linux/amd64
-    image: btp/btp-backend:${IMAGE}
+    image: btp-backend:${IMAGE}
     environment:
-        PORT: "5001"
-        NODE_ENV: "production"
-        PRESTASHOP_API_TOKEN: ${PRESTASHOP_API_TOKEN}
+      PORT: "4040"
+      THROTTLE_TTL: "60000"
+      THROTTLE_LIMIT: "200"
+      HTTPCLIENT_ATTEMPTS: 4
+      JWT_SECRET: $JWT_SECRET
+      JWT_SECRET_EXPIRES_IN: "300 days"
+      JWT_SECRET_EXPIRES_REFRESH_IN: "300 days"
+      JWT_SECRET_ATTEMPTS_REFRESH_IN: 1
+      MONGODB_URL: $MONGODB_URL
+      MONGODB_USER: $MONGODB_USER
+      PRESTASHOP_API_TOKEN: $PRESTASHOP_API_TOKEN
+      PRESTASHOP_API_URL: $PRESTASHOP_API_TOKEN
+    networks:
+      - BTP
+
+networks:
+  BTP:
+    driver: bridge
