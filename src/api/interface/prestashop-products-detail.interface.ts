@@ -4,14 +4,14 @@ export interface PrestaShopProductsDetailsInterface {
 
 interface Prestashop {
   $: GeneratedType;
-  product: Product[];
+  product: PrestaShopProductsDetails[];
 }
 
 interface GeneratedType {
   'xmlns:xlink': string;
 }
 
-interface Product {
+export interface PrestaShopProductsDetails {
   id: string[];
   id_manufacturer: IdManufacturer[];
   id_supplier: string[];

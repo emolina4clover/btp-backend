@@ -2,6 +2,11 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrestashopProductsClient } from '../../lib/microservices/uses-cases/prestashop-products.client';
 import { PrestaShopProductsInterface } from '../interface/prestashop-products.interface';
 import { PrestaShopProductsDetailsInterface } from '../interface/prestashop-products-detail.interface';
+import { transformData } from '../../utils/transform-data-products';
+import {
+  PrestashopProductsStockInterface,
+  PrestashopProductsStockResponseInterface,
+} from '../interface/prestashop-products-stock.interface';
 
 @Injectable()
 export class ProductsService {
@@ -37,7 +42,38 @@ export class ProductsService {
 
     this.logger.debug('Detalles de productos obtenidos.');
 
-    return productsDetails;
+    let productsDetailsMap: PrestashopProductsStockInterface[] =
+      transformData(productsDetails);
+
+    if (!productsDetailsMap?.length) {
+      this.logger.error(
+        'Error Map Data.productsDetailsMap',
+        productsDetailsMap,
+      );
+      throw new NotFoundException('Error Map Data');
+    }
+
+    const productsDetailsMapWithStock: PrestashopProductsStockInterface[] = [];
+
+    for (const prod of productsDetailsMap) {
+      let newMap: PrestashopProductsStockInterface = { ...prod };
+
+      const details: PrestashopProductsStockResponseInterface =
+        await this.prestashopProductsClient._handleCallPrestashopProductsByStockUrlCustom(
+          newMap.stockAvailable,
+        );
+
+      if (details.status !== 460) {
+        newMap.stock = '0';
+      }
+
+      newMap.stock =
+        details.data?.prestashop?.stock_available[0]?.quantity[0] ?? '0';
+
+      productsDetailsMapWithStock.push(newMap);
+    }
+
+    return productsDetailsMapWithStock;
   }
 
   /**

@@ -141,4 +141,85 @@ export class PrestashopProductsClient {
       };
     }
   }
+
+  /**
+   * Handles the call to Meli API v2 to create a package.
+   *
+   * @param url
+   * @param {number} [numOfAttempts=1] - The number of attempts made for the API call.
+   * @returns {Promise<{ data: any; status: number }>} - The response from the API call.
+   */
+  async _handleCallPrestashopProductsByStockUrlCustom(
+    url: string,
+    numOfAttempts: number = 1,
+  ): Promise<{ data: any; status: number }> {
+    this.logger.verbose('_handleCallPrestashopProductsByStockUrlCustom');
+
+    try {
+      const stockId = this.extractNumberFromURL(url);
+
+      const _config = this.configuration.execute();
+      const endpoint = `${_config.endpoints.stock_availables}/${stockId}`;
+
+      this.logger.debug(
+        `Endpoint._handleCallPrestashopProductsByStockUrlCustom: ${endpoint}`,
+      );
+
+      const result: AxiosResponse<any> = await firstValueFrom(
+        this.http.get(endpoint, {
+          headers: {
+            'Content-Type': 'application/xml',
+          },
+        }),
+      );
+
+      const stock = (await parseStringPromise(
+        result.data,
+      )) as PrestaShopProductsInterface;
+
+      return {
+        data: stock,
+        status: result.status,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `_handleCallPrestashopProductsByStockUrlCustom Error connection api. (${JSON.stringify(
+          error,
+        )})`,
+      );
+
+      if (
+        numOfAttempts <= Number(this.configService.get('HTTPCLIENT_ATTEMPTS'))
+      ) {
+        this.logger.warn(
+          `_handleCallPrestashopProductsByStockUrlCustom ATTEMPTS ${numOfAttempts}`,
+        );
+        return await this._handleCallPrestashopProductsByStockUrlCustom(
+          url,
+          numOfAttempts + 1,
+        );
+      }
+
+      return {
+        status: 460,
+        data: {
+          message: `Error connection _handleCallPrestashopProductsByStockUrlCustom api. (${JSON.stringify(
+            error,
+          )})`,
+        },
+      };
+    }
+  }
+
+  /**
+   * Extracts a number from the given URL string. Specifically, it looks for a pattern
+   * where a number follows 'stock_availables/' within the URL and returns this number.
+   *
+   * @param url - The URL string from which the number is to be extracted.
+   */
+  private extractNumberFromURL(url: string): number | null {
+    const regex = /stock_availables\/(\d+)/;
+    const match = url.match(regex);
+    return match ? parseInt(match[1], 10) : null;
+  }
 }

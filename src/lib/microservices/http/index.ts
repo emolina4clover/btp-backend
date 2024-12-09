@@ -20,6 +20,7 @@ export class ConfigurationMsClient {
     return {
       endpoints: {
         products: `${url}/products`,
+        stock_availables: `${url}/stock_availables`,
       },
       headers: null,
     };
