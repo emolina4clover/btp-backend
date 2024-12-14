@@ -16,4 +16,9 @@ export class ProductsController {
   async getProducts() {
     return this.productService.getProducts();
   }
+
+  @Get('categories')
+  async getProductsCategories() {
+    return this.productService.getProductsCategories();
+  }
 }

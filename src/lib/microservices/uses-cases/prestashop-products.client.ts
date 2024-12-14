@@ -6,6 +6,8 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigurationMsClient } from '../http';
 import { parseStringPromise } from 'xml2js';
 import { PrestaShopProductsInterface } from '../../../api/interface/prestashop-products.interface';
+import axios from 'axios';
+import { PrestashopCategoriesResponseInterface } from '../../../api/interface/prestashop-categories-response.interface';
 
 @Injectable()
 export class PrestashopProductsClient {
@@ -204,6 +206,69 @@ export class PrestashopProductsClient {
         status: 460,
         data: {
           message: `Error connection _handleCallPrestashopProductsByStockUrlCustom api. (${JSON.stringify(
+            error,
+          )})`,
+        },
+      };
+    }
+  }
+
+  /**
+   * Handles the response for fetching an image from Prestashop.
+   *
+   * @param {string} imageUrl - The URL of the image to fetch.
+   */
+  async _handleCallPrestashopGetImageResponse(imageUrl: string) {
+    return axios.get(imageUrl, { responseType: 'arraybuffer' });
+  }
+
+  async _handleCallPrestashopCategories(numOfAttempts: number = 1): Promise<{
+    data: any;
+    status: number;
+  }> {
+    this.logger.verbose('_handleCallPrestashopCategories');
+    try {
+      const _config = this.configuration.execute();
+      const endpoint = _config.endpoints.categories;
+
+      this.logger.debug(
+        `Endpoint._handleCallPrestashopCategories: ${endpoint}`,
+      );
+
+      const result: AxiosResponse<any> = await firstValueFrom(
+        this.http.get(endpoint, {
+          headers: {
+            'Content-Type': 'application/xml',
+          },
+        }),
+      );
+
+      const categories = await parseStringPromise(result.data);
+
+      return {
+        data: categories,
+        status: result.status,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `_handleCallPrestashopCategories Error connection api. (${JSON.stringify(
+          error,
+        )})`,
+      );
+
+      if (
+        numOfAttempts <= Number(this.configService.get('HTTPCLIENT_ATTEMPTS'))
+      ) {
+        this.logger.warn(
+          `_handleCallPrestashopCategories ATTEMPTS ${numOfAttempts}`,
+        );
+        return await this._handleCallPrestashopCategories(numOfAttempts + 1);
+      }
+
+      return {
+        status: 460,
+        data: {
+          message: `Error connection _handleCallPrestashopCategories api. (${JSON.stringify(
             error,
           )})`,
         },

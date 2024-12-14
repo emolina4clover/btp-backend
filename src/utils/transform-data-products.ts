@@ -41,7 +41,7 @@ export function transformData(
     const description_short =
       product.description_short?.[0]?.language?.[0]?._ || '';
 
-    const images = extractImages(product);
+    const images = extractImages(product).map((value) => btoa(value));
 
     const stockAvailable =
       product.associations?.[0]?.stock_availables?.[0]?.stock_available?.[0]?.$[

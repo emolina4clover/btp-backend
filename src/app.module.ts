@@ -11,6 +11,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { UsersModule } from './api/users/users.module';
 import { AuthModule } from './api/auth/auth.module';
 import { ProductsModule } from './api/products/products.module';
+import { AssetsModule } from './api/assets/assets.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ProductsModule } from './api/products/products.module';
     AuthModule,
     UsersModule,
     ProductsModule,
+    AssetsModule,
   ],
   providers: [
     {

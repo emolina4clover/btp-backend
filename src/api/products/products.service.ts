@@ -7,6 +7,7 @@ import {
   PrestashopProductsStockInterface,
   PrestashopProductsStockResponseInterface,
 } from '../interface/prestashop-products-stock.interface';
+import { PrestashopCategoriesResponseInterface } from '../interface/prestashop-categories-response.interface';
 
 @Injectable()
 export class ProductsService {
@@ -76,6 +77,23 @@ export class ProductsService {
     return productsDetailsMapWithStock;
   }
 
+  async getProductsCategories() {
+    const prestashopCategories =
+      await this.prestashopProductsClient._handleCallPrestashopCategories();
+
+    if (prestashopCategories.status === 460) {
+      this.logger.error(prestashopCategories.data?.message);
+      throw new NotFoundException('Error connection');
+    }
+
+    const categories =
+      prestashopCategories.data as PrestashopCategoriesResponseInterface;
+
+    const categoriesByIdMaps = this.getCategoriesMap(categories);
+
+    console.log(categoriesByIdMaps);
+  }
+
   /**
    * Extracts and maps product IDs from a PrestaShop product interface.
    *
@@ -88,5 +106,21 @@ export class ProductsService {
     }
 
     return products.prestashop.products[0].product.map((p) => p.$.id);
+  }
+
+  /**
+   * Retrieves a mapped array of category IDs from the given Prestashop categories response.
+   *
+   * @param {PrestashopCategoriesResponseInterface} categories - The Prestashop categories response object containing category data.
+   * @return {string[]} An array of category IDs extracted from the Prestashop categories response.
+   * @throws {NotFoundException} Throws an exception if no categories are found in the response.
+   */
+  private getCategoriesMap(categories: PrestashopCategoriesResponseInterface) {
+    if (!categories.prestashop.categories?.length) {
+      this.logger.error('No products found');
+      throw new NotFoundException('No products found');
+    }
+
+    return categories.prestashop.categories[0].category.map((p) => p.$.id);
   }
 }

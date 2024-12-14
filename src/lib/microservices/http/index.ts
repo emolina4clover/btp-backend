@@ -19,6 +19,7 @@ export class ConfigurationMsClient {
 
     return {
       endpoints: {
+        categories: `${url}/categories`,
         products: `${url}/products`,
         stock_availables: `${url}/stock_availables`,
       },
