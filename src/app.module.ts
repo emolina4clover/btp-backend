@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ApiController } from './modules-nouse/api/controllers/api.controller';
 import { validate } from './env.validate';
 import { Throttler } from './throttler/throttler';
 import { JwtRegister } from './jwt/jwt';
@@ -12,6 +11,8 @@ import { UsersModule } from './api/users/users.module';
 import { AuthModule } from './api/auth/auth.module';
 import { ProductsModule } from './api/products/products.module';
 import { AssetsModule } from './api/assets/assets.module';
+import { ResourcesModule } from './api/resources/resources.module';
+import { CartModule } from './api/cart/cart.module';
 
 @Module({
   imports: [
@@ -34,6 +35,8 @@ import { AssetsModule } from './api/assets/assets.module';
     UsersModule,
     ProductsModule,
     AssetsModule,
+    ResourcesModule,
+    CartModule,
   ],
   providers: [
     {

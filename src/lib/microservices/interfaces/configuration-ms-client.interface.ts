@@ -3,6 +3,7 @@ export interface ConfigurationMsClientInterface {
     products: string;
     categories: string;
     stock_availables: string;
+    baseUrl: string;
   };
   headers: any;
 }

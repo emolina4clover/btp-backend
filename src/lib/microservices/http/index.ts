@@ -22,6 +22,7 @@ export class ConfigurationMsClient {
         categories: `${url}/categories`,
         products: `${url}/products`,
         stock_availables: `${url}/stock_availables`,
+        baseUrl: url,
       },
       headers: null,
     };

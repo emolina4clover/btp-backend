@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { json, urlencoded } from 'express';
 
 async function bootstrap() {
@@ -14,6 +14,8 @@ async function bootstrap() {
   app.enableCors({ origin: '*' });
 
   app.setGlobalPrefix('api/v1');
+
+  app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(process.env.PORT).then(() => {
     logger.log(`Microservice start on ${process.env.PORT}`);

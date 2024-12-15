@@ -8,6 +8,7 @@ import {
   PrestashopProductsStockResponseInterface,
 } from '../interface/prestashop-products-stock.interface';
 import { PrestashopCategoriesResponseInterface } from '../interface/prestashop-categories-response.interface';
+import { PrestashopCategoriesByIdResponse } from '../interface/prestashop-categores-byId-response.interface';
 
 @Injectable()
 export class ProductsService {
@@ -15,6 +16,13 @@ export class ProductsService {
 
   constructor(private prestashopProductsClient: PrestashopProductsClient) {}
 
+  /**
+   * Retrieves a list of products with their detailed stock information.
+   *
+   * This method fetches product data from an external Prestashop service, handles transformation of the product details,
+   * retrieves stock availability for each product, and combines these details into a finalized product details map.
+   *
+   */
   async getProducts() {
     const prestashopProducts =
       await this.prestashopProductsClient._handleCallPrestashopProducts();
@@ -77,6 +85,10 @@ export class ProductsService {
     return productsDetailsMapWithStock;
   }
 
+  /**
+   * Fetches product categories from Prestashop, processes the data to map categories by ID,
+   * retrieves detailed information about each category, and returns them in a structured format.
+   */
   async getProductsCategories() {
     const prestashopCategories =
       await this.prestashopProductsClient._handleCallPrestashopCategories();
@@ -91,7 +103,44 @@ export class ProductsService {
 
     const categoriesByIdMaps = this.getCategoriesMap(categories);
 
-    console.log(categoriesByIdMaps);
+    const categoriesDetails = [];
+
+    for (const category of categoriesByIdMaps) {
+      const detailsCategory =
+        (await this.prestashopProductsClient._handleCallPrestashopCategoryById(
+          category,
+        )) as PrestashopCategoriesByIdResponse;
+
+      const categories = detailsCategory.data.prestashop.category;
+
+      const id = categories[0].id[0];
+
+      // Extraer el nombre de la categoría
+      const name = categories[0].name[0]?.language[0]?._;
+
+      let products = [];
+      if (
+        categories[0].associations &&
+        categories[0].associations[0]?.products
+      ) {
+        products = categories[0].associations[0].products[0].product
+          ? categories[0].associations[0].products[0].product?.map(
+              (product) => ({
+                id: product.id[0],
+                url: product.$['xlink:href'],
+              }),
+            )
+          : [];
+      }
+
+      categoriesDetails.push({
+        id,
+        name,
+        products,
+      });
+    }
+
+    return categoriesDetails;
   }
 
   /**

@@ -32,6 +32,8 @@ export class AssetsService {
 
     const urlWithToken = url.replace('https://', `https://${token}@`);
 
+    this.logger.debug(`Fetching image from URL: ${urlWithToken}`);
+
     const response =
       await this.prestashopProductsClient._handleCallPrestashopGetImageResponse(
         urlWithToken,
