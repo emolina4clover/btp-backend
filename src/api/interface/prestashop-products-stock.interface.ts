@@ -8,7 +8,8 @@ export interface PrestashopProductsStockInterface {
   description: string;
   description_short: string;
   images: string[];
-  stockAvailable?: string;
+  stockAvailable?: StockAvailable[];
+  id_default_combination?: string;
   stock?: string;
 }
 
@@ -31,6 +32,7 @@ export interface GeneratedType {
 }
 
 export interface StockAvailable {
+  stock_available?: IdProduct;
   id: string[];
   id_product: IdProduct[];
   id_product_attribute: string[];

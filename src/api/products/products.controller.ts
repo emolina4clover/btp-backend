@@ -3,6 +3,7 @@ import {
   Get,
   InternalServerErrorException,
   Logger,
+  Param,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 
@@ -17,8 +18,22 @@ export class ProductsController {
     return this.productService.getProducts();
   }
 
+  @Get('images/:productId')
+  async getProductsImages(@Param('productId') productId: string) {
+    return this.productService.getProductsImages(productId);
+  }
+
   @Get('categories')
   async getProductsCategories() {
     return this.productService.getProductsCategories();
+  }
+
+  @Get('feature/:combinationId')
+  async getProductsFeature(@Param('combinationId') combinationId: string) {
+    if (!combinationId) {
+      throw new InternalServerErrorException('Error combination');
+    }
+
+    return this.productService.getProductsFeature(combinationId);
   }
 }

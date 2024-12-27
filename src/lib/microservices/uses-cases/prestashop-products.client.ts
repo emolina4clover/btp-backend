@@ -349,6 +349,135 @@ export class PrestashopProductsClient {
   }
 
   /**
+   * Handles API requests to retrieve product combination data by ID from Prestashop.
+   *
+   * @param {string} id - The ID of the product combination to retrieve.
+   * @param {number} [numOfAttempts=1] - The current retry attempt counter (default is 1).
+   * @return {Promise<{ data: any; status: number }>} A promise that resolves with the retrieved product combination data and HTTP status or rejects in case of failure.
+   */
+  async _handleCallPrestashopProductsCombinationById(
+    id: string,
+    numOfAttempts: number = 1,
+  ): Promise<{ data: any; status: number }> {
+    this.logger.verbose('_handleCallPrestashopProductsCombinationById');
+    try {
+      const _config = this.configuration.execute();
+      const endpoint = `${_config.endpoints.combinations}/${id}`;
+
+      this.logger.debug(
+        `Endpoint._handleCallPrestashopProductsCombinationById: ${endpoint}`,
+      );
+
+      const result: AxiosResponse<any> = await firstValueFrom(
+        this.http.get(endpoint, {
+          headers: {
+            'Content-Type': 'application/xml',
+          },
+        }),
+      );
+
+      const combinationsById = (await parseStringPromise(result.data)) as any;
+
+      return {
+        data: combinationsById,
+        status: result.status,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `_handleCallPrestashopProductsCombinationById Error connection api. (${JSON.stringify(
+          error,
+        )})`,
+      );
+
+      if (
+        numOfAttempts <= Number(this.configService.get('HTTPCLIENT_ATTEMPTS'))
+      ) {
+        this.logger.warn(
+          `_handleCallPrestashopProductsCombinationById ATTEMPTS ${numOfAttempts}`,
+        );
+        return await this._handleCallPrestashopProductsCombinationById(
+          id,
+          numOfAttempts + 1,
+        );
+      }
+
+      return {
+        status: 460,
+        data: {
+          message: `Error connection _handleCallPrestashopProductsCombinationById api. (${JSON.stringify(
+            error,
+          )})`,
+        },
+      };
+    }
+  }
+
+  /**
+   * Handles the call to Meli API v2 to create a package.
+   *
+   * @param url
+   * @param {number} [numOfAttempts=1] - The number of attempts made for the API call.
+   * @returns {Promise<{ data: any; status: number }>} - The response from the API call.
+   */
+  async _handleCallPrestashopUrlCustom(
+    url: string,
+    numOfAttempts: number = 1,
+  ): Promise<{ data: any; status: number }> {
+    this.logger.verbose('_handleCallPrestashopUrlCustom');
+    const token = this.configService.get<string>('PRESTASHOP_API_TOKEN');
+
+    try {
+      const _config = this.configuration.execute();
+
+      const endpoint = url.replace('https://', `https://${token}@`);
+
+      this.logger.debug(`Endpoint._handleCallPrestashopUrlCustom: ${endpoint}`);
+
+      const result: AxiosResponse<any> = await firstValueFrom(
+        this.http.get(endpoint, {
+          headers: {
+            'Content-Type': 'application/xml',
+          },
+        }),
+      );
+
+      const data = (await parseStringPromise(result.data)) as any;
+
+      return {
+        data,
+        status: result.status,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `_handleCallPrestashopUrlCustom Error connection api. (${JSON.stringify(
+          error,
+        )})`,
+      );
+
+      if (
+        numOfAttempts <= Number(this.configService.get('HTTPCLIENT_ATTEMPTS'))
+      ) {
+        this.logger.warn(
+          `_handleCallPrestashopUrlCustom ATTEMPTS ${numOfAttempts}`,
+        );
+        return await this._handleCallPrestashopUrlCustom(
+          url,
+          numOfAttempts + 1,
+        );
+      }
+
+      return {
+        status: 460,
+        data: {
+          message: `Error connection _handleCallPrestashopProductsByStockUrlCustom api. (${JSON.stringify(
+            error,
+          )})`,
+        },
+      };
+    }
+  }
+
+  /**
    * Extracts a number from the given URL string. Specifically, it looks for a pattern
    * where a number follows 'stock_availables/' within the URL and returns this number.
    *
