@@ -6,6 +6,7 @@ import {
   BadRequestException,
   Patch,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart-item.dto';
@@ -43,5 +44,12 @@ export class CartController {
   async getCart(@Req() req: any) {
     const userId = req.user.id;
     return this.cartService.showCart(userId);
+  }
+
+  @Delete(':cartId')
+  async deleteCart(
+    @Param('cartId', ParseObjectIdValidPipe) cartId: Types.ObjectId,
+  ) {
+    return this.cartService.deleteCart(cartId);
   }
 }

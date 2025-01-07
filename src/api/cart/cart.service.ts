@@ -34,6 +34,25 @@ export class CartService {
   }
 
   /**
+   * Retrieves an active shopping cart by its unique identifier.
+   *
+   * @param {Types.ObjectId} cartId - The unique identifier of the shopping cart to retrieve.
+   * @return {Promise<Cart>} A promise that resolves with the active shopping cart.
+   */
+  async show(cartId: Types.ObjectId): Promise<Cart> {
+    const cart = await this.cartModel.findOne({
+      _id: cartId,
+      status: 'active',
+    });
+
+    if (!cart) {
+      throw new Error('Carrito no encontrado.');
+    }
+
+    return cart;
+  }
+
+  /**
    * Retrieves the active shopping cart for a specific user.
    */
   async showCart(userId: string): Promise<Cart> {
@@ -109,5 +128,26 @@ export class CartService {
     }
 
     return cart.save(); // Guardar los cambios en MongoDB
+  }
+
+  /**
+   * Deletes a cart by its ID if it has an active status.
+   *
+   * @param {Types.ObjectId} cartId - The unique identifier of the cart to be deleted.
+   * @return {Promise<boolean>} A promise resolving to true if the cart is successfully deleted, or false in case of an error.
+   */
+  async deleteCart(cartId: Types.ObjectId): Promise<boolean> {
+    try {
+      const cart = await this.cartModel.deleteOne({
+        _id: cartId,
+        status: 'active',
+      });
+
+      return true;
+    } catch (error) {
+      this.logger.debug('Error deleting cart');
+      this.logger.error(error);
+      return false;
+    }
   }
 }
