@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart, CartDocument } from './schemas/cart.schema';
 import { Model, Types } from 'mongoose';
@@ -149,5 +149,42 @@ export class CartService {
       this.logger.error(error);
       return false;
     }
+  }
+
+  /**
+   * Elimina un producto del carrito.
+   *
+   * @param {Types.ObjectId} cartId - El ID único del carrito.
+   * @param {string} productId - El ID del producto que se desea eliminar.
+   * @return {Promise<Cart>} - El carrito actualizado después de eliminar el producto.
+   */
+  async removeProductFromCart(
+    cartId: Types.ObjectId,
+    productId: string,
+  ): Promise<Cart> {
+    // Buscar el carrito activo por su ID
+    const cart = await this.cartModel.findOne({
+      _id: cartId,
+      status: 'active',
+    });
+
+    if (!cart) {
+      throw new BadRequestException('Carrito no encontrado.');
+    }
+
+    // Buscar el índice del producto en el carrito
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId,
+    );
+
+    if (itemIndex === -1) {
+      throw new BadRequestException('Producto no encontrado en el carrito.');
+    }
+
+    // Eliminar el producto del arreglo de items
+    cart.items.splice(itemIndex, 1);
+
+    // Guardar los cambios del carrito en la base de datos
+    return cart.save();
   }
 }

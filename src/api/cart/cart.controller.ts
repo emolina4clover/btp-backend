@@ -52,4 +52,15 @@ export class CartController {
   ) {
     return this.cartService.deleteCart(cartId);
   }
+
+  @Delete(':cartId/products/:productId')
+  async removeProduct(
+    @Param('cartId') cartId: string,
+    @Param('productId') productId: string,
+  ) {
+    return this.cartService.removeProductFromCart(
+      new Types.ObjectId(cartId),
+      productId,
+    );
+  }
 }
