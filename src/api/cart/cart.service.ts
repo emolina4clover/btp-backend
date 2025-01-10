@@ -162,7 +162,6 @@ export class CartService {
     cartId: Types.ObjectId,
     productId: string,
   ): Promise<Cart> {
-    // Buscar el carrito activo por su ID
     const cart = await this.cartModel.findOne({
       _id: cartId,
       status: 'active',
@@ -172,7 +171,6 @@ export class CartService {
       throw new BadRequestException('Carrito no encontrado.');
     }
 
-    // Buscar el índice del producto en el carrito
     const itemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId,
     );
@@ -181,10 +179,8 @@ export class CartService {
       throw new BadRequestException('Producto no encontrado en el carrito.');
     }
 
-    // Eliminar el producto del arreglo de items
     cart.items.splice(itemIndex, 1);
 
-    // Guardar los cambios del carrito en la base de datos
     return cart.save();
   }
 }
