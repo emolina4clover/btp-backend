@@ -23,6 +23,11 @@ export class ProductsController {
     return this.productService.getProductsImages(productId);
   }
 
+  @Get(':productId')
+  async getProductsById(@Param('productId') productId: string) {
+    return this.productService.getProductsById(productId);
+  }
+
   @Get('categories')
   async getProductsCategories() {
     return this.productService.getProductsCategories();

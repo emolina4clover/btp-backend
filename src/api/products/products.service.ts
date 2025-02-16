@@ -103,6 +103,32 @@ export class ProductsService {
     return productsDetailsMapWithStock;
   }
 
+  /**
+   * Fetches product details by its ID using the PrestaShop client.
+   *
+   * @param {string} productId - The unique identifier of the product to retrieve.
+   * If the status code is 460, logs an error message.
+   */
+  async getProductsById(productId: string) {
+    const details =
+      await this.prestashopProductsClient._handleCallPrestashopProductsCustomById(
+        productId,
+      );
+
+    if (details.status === 460) {
+      this.logger.error(details.data?.message);
+    }
+
+    this.logger.debug('Detalles de productos obtenidos.');
+
+    return details;
+  }
+
+  /**
+   * Retrieves product images based on the provided product ID.
+   *
+   * @param {string} productId - The identifier of the product to fetch images for.
+   */
   async getProductsImages(productId: string) {
     const details =
       await this.prestashopProductsClient._handleCallPrestashopProductsById(

@@ -20,10 +20,9 @@ export class PrestashopProductsClient {
   ) {}
 
   /**
-   * Handles the call to Meli API v2 to create a package.
+   * Handles the API call to fetch Prestashop products from the specified endpoint.
    *
-   * @param {number} [numOfAttempts=1] - The number of attempts made for the API call.
-   * @returns {Promise<{ data: any; status: number }>} - The response from the API call.
+   * @param {number} numOfAttempts - The number of attempts made to call the API. Defaults to 1.
    */
   async _handleCallPrestashopProducts(
     numOfAttempts: number = 1,
@@ -79,11 +78,10 @@ export class PrestashopProductsClient {
   }
 
   /**
-   * Handles the call to Meli API v2 to create a package.
+   * Handles calling the PrestaShop API to fetch product details by ID.
    *
-   * @param id
-   * @param {number} [numOfAttempts=1] - The number of attempts made for the API call.
-   * @returns {Promise<{ data: any; status: number }>} - The response from the API call.
+   * @param {string} id The ID of the product to fetch from the PrestaShop API.
+   * @param {number} [numOfAttempts=1] The current number of retry attempts for the API call (default is 1).
    */
   async _handleCallPrestashopProductsById(
     id: string,
@@ -145,11 +143,67 @@ export class PrestashopProductsClient {
   }
 
   /**
-   * Handles the call to Meli API v2 to create a package.
+   * Handles the request to retrieve custom product details from the PrestaShop API by product ID.
    *
-   * @param url
-   * @param {number} [numOfAttempts=1] - The number of attempts made for the API call.
-   * @returns {Promise<{ data: any; status: number }>} - The response from the API call.
+   * @param {string} id - The ID of the product to retrieve.
+   * @param {number} [numOfAttempts=1] - The current number of attempts to retrieve the data (used for retry logic).
+   */
+  async _handleCallPrestashopProductsCustomById(
+    id: string,
+    numOfAttempts: number = 1,
+  ) {
+    this.logger.verbose('_handleCallPrestashopProductsCustomById');
+    try {
+      const _config = this.configuration.execute();
+      const endpoint = `${_config.endpoints.productsCustom}/${id}?output_format=JSON`;
+
+      this.logger.debug(
+        `Endpoint._handleCallPrestashopProductsCustomById: ${endpoint}`,
+      );
+
+      const result: AxiosResponse<any> = await firstValueFrom(
+        this.http.get(endpoint),
+      );
+
+      return {
+        data: result.data,
+        status: result.status,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `_handleCallPrestashopProductsCustomById Error connection api. (${JSON.stringify(
+          error,
+        )})`,
+      );
+
+      if (
+        numOfAttempts <= Number(this.configService.get('HTTPCLIENT_ATTEMPTS'))
+      ) {
+        this.logger.warn(
+          `_handleCallPrestashopProductsCustomById ATTEMPTS ${numOfAttempts}`,
+        );
+        return await this._handleCallPrestashopProductsCustomById(
+          id,
+          numOfAttempts + 1,
+        );
+      }
+
+      return {
+        status: 460,
+        data: {
+          message: `Error connection _handleCallPrestashopProductsCustomById api. (${JSON.stringify(
+            error,
+          )})`,
+        },
+      };
+    }
+  }
+
+  /**
+   * Handles fetching PrestaShop products by stock URL with retry functionality.
+   *
+   * @param {string} url - The URL used to fetch stock information for a product.
+   * @param {number} [numOfAttempts=1] - The current attempt count for retrieving data.
    */
   async _handleCallPrestashopProductsByStockUrlCustom(
     url: string,
@@ -413,11 +467,10 @@ export class PrestashopProductsClient {
   }
 
   /**
-   * Handles the call to Meli API v2 to create a package.
+   * Handles API calls to PrestaShop with a configurable number of retry attempts.
    *
-   * @param url
-   * @param {number} [numOfAttempts=1] - The number of attempts made for the API call.
-   * @returns {Promise<{ data: any; status: number }>} - The response from the API call.
+   * @param {string} url - The API endpoint URL for the PrestaShop service.
+   * @param {number} [numOfAttempts=1] - The current retry attempt number (default is 1).
    */
   async _handleCallPrestashopUrlCustom(
     url: string,
